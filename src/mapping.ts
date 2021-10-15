@@ -38,8 +38,19 @@ export function handleTransfer(event: Transfer): void {
 
   let blockNumber = event.block.number
 
+    //load transaction event if already registered
+    let tx = Transaction.load(blockNumber.toString())
+
+    if (!tx) {
+      tx = new Transaction(blockNumber.toString())
+      tx.gasPrice = event.transaction.gasPrice
+      tx.timestamp = event.block.timestamp
+      tx.save()
+    }
+
   let gasPrices: BigInt[] = []
   let blockNumberCounter = blockNumber.minus(new BigInt(60480))
+  // console.log(blockNumberCounter.toString())
 
   //iterate through blocks to collect a list of block averages
   while (blockNumberCounter < blockNumber) {
@@ -48,32 +59,34 @@ export function handleTransfer(event: Transfer): void {
     
     // let product = blockNumber.times(count)
   
-    // let hash = crypto.keccak256(ByteArray.fromBigInt(product))
+    // let hash = crypto.keccak256(ByteArray.fromBigInt(product))0.4.
 
     //load transaction event if already registered
-    let entity = Transaction.load(blockNumberCounter.toString())
+    tx = Transaction.load(blockNumberCounter.toString())
 
-    //collect average of the block
-    blockNumberCounter.plus(new BigInt(1))
-
-    if (!entity) {
-      entity = new Transaction(blockNumberCounter.toString())
-      entity.gasPrice = event.transaction.gasPrice
-      entity.timestamp = event.block.timestamp
-      entity.save()
+    if (!tx) {
+      tx = new Transaction(blockNumberCounter.toString())
+      tx.gasPrice = event.transaction.gasPrice
+      tx.timestamp = event.block.timestamp
+      tx.save()
     }
 
     //push to list of averages
-    gasPrices.push(entity.gasPrice)
+    gasPrices.push(tx.gasPrice)
+    // console.log(gasPrices.toString())
 
-    blockNumberCounter.plus(new BigInt(1))
+    //collect average of the block
+    blockNumberCounter.plus(new BigInt(4320))
 
 }
+let sum = new BigInt(0)
+let avg = new BigInt(0)
 
-let sum = gasPrices.reduce((a: BigInt, b: BigInt) => a.plus(b), new BigInt(0))
+if (gasPrices.length > 0) {
+  sum = gasPrices.reduce((a: BigInt, b: BigInt) => a.plus(b), new BigInt(0))
 
-let avg = sum.div(new BigInt(gasPrices.length))
-
+  avg = sum.div(new BigInt(gasPrices.length))
+}
 let entity = Avg.load(blockNumber.toString())
 if (!entity) {
   entity = new Avg(blockNumber.toString())
