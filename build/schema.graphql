@@ -1,0 +1,11 @@
+type Transaction @entity {
+  id: ID!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+}
+
+type Avg @entity {
+  id: ID!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+}
