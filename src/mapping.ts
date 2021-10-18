@@ -10,8 +10,7 @@ import {
   Transfer,
   Voted
 } from "../generated/Tellor/Tellor"
-import { crypto, ByteArray } from '@graphprotocol/graph-ts'
-import { Transaction, Avg } from "../generated/schema"
+import { Transaction } from "../generated/schema"
 
 export function handleApproval(event: Approval): void {
 }
@@ -43,57 +42,59 @@ export function handleTransfer(event: Transfer): void {
 
     if (!tx) {
       tx = new Transaction(blockNumber.toString())
-      tx.gasPrice = event.transaction.gasPrice
+      tx.gasPrice = event.transaction.gasPrice.div(new BigInt(1000000000))
       tx.timestamp = event.block.timestamp
       tx.save()
     }
 
-  let gasPrices: BigInt[] = []
-  let blockNumberCounter = blockNumber.minus(new BigInt(60480))
-  // console.log(blockNumberCounter.toString())
+//   let gasPrices: BigInt[] = []
+//   let blockNumberCounter = blockNumber.minus(new BigInt(60480))
+//   // console.log(blockNumberCounter.toString())
 
-  //iterate through blocks to collect a list of block averages
-  while (blockNumberCounter < blockNumber) {
+//   //iterate through blocks to collect a list of block averages
+//   while (blockNumberCounter < blockNumber) {
 
-    // let count = new BigInt(1)
+//     // let count = new BigInt(1)
     
-    // let product = blockNumber.times(count)
+//     // let product = blockNumber.times(count)
   
-    // let hash = crypto.keccak256(ByteArray.fromBigInt(product))0.4.
+//     // let hash = crypto.keccak256(ByteArray.fromBigInt(product))0.4.
 
-    //load transaction event if already registered
-    tx = Transaction.load(blockNumberCounter.toString())
+//     //load transaction event if already registered
+//     tx = Transaction.load(blockNumberCounter.toString())
 
-    if (!tx) {
-      tx = new Transaction(blockNumberCounter.toString())
-      tx.gasPrice = event.transaction.gasPrice
-      tx.timestamp = event.block.timestamp
-      tx.save()
-    }
+//     if (!tx) {
+//       tx = new Transaction(blockNumberCounter.toString())
+//       tx.gasPrice = event.transaction.gasPrice.div(new BigInt(1000000000))
+//       tx.timestamp = event.block.timestamp
+//       tx.save()
+//     }
 
-    //push to list of averages
-    gasPrices.push(tx.gasPrice)
-    // console.log(gasPrices.toString())
+//     //push to list of averages
+//     gasPrices.push(tx.gasPrice)
+//     // console.log(gasPrices.toString())
 
-    //collect average of the block
-    blockNumberCounter.plus(new BigInt(4320))
+//     //collect average of the block
+//     blockNumberCounter.plus(new BigInt(4320))
 
-}
-let sum = new BigInt(0)
-let avg = new BigInt(0)
+// }
+// let sum = new BigInt(0)
+// let avg = new BigInt(0)
 
-if (gasPrices.length > 0) {
-  sum = gasPrices.reduce((a: BigInt, b: BigInt) => a.plus(b), new BigInt(0))
+// if (gasPrices.length > 0) {
+//   sum = gasPrices.reduce((a: BigInt, b: BigInt) => a.plus(b), new BigInt(0))
 
-  avg = sum.div(new BigInt(gasPrices.length))
-}
-let entity = Avg.load(blockNumber.toString())
-if (!entity) {
-  entity = new Avg(blockNumber.toString())
-  entity.gasPrice = avg
-  entity.timestamp = event.block.timestamp
-  entity.save()
-}
+//   avg = sum.div(new BigInt(gasPrices.length))
+// }
+
+// let entity = Avg.load(blockNumber.toString())
+
+// if (!entity) {
+//   entity = new Avg(blockNumber.toString())
+//   entity.gasPrice = avg
+//   entity.timestamp = event.block.timestamp
+//   entity.save()
+// }
 }
 
 export function handleVoted(event: Voted): void {}
